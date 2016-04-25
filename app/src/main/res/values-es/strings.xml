@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Notie</string>
+    <string name="button_start">Empezar</string>
+
+    <string name="title">Titulo:</string>
+    <string name="description">Descripcion:</string>
+
+    <string name="title_hint">Inserte titulo aqui</string>
+    <string name="description_hint">Inserte texto aqui</string>
+
+    <string name="title_activity_new_note">Nueva nota</string>
+    <string name="save_button">Guardar nota</string>
+</resources>
