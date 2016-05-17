@@ -2,6 +2,7 @@ package com.example.application;
 
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.application.db.DatabaseHelper;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -21,6 +24,9 @@ public class ListFragment extends Fragment {
 
     RecyclerView mRecyclerView;
     FloatingActionButton mFloatingActionButton;
+
+    SQLiteDatabase mDb;
+    DatabaseHelper mDatabaseHelper;
 
     public ListFragment() {
         // Required empty public constructor
