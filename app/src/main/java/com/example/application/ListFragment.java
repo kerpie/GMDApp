@@ -2,12 +2,14 @@ package com.example.application;
 
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.os.AsyncTaskCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.application.db.Contract;
 import com.example.application.db.DatabaseHelper;
 
 /**
@@ -38,7 +41,14 @@ public class ListFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mDatabaseHelper = new DatabaseHelper(getActivity());
+        mDb = mDatabaseHelper.getReadableDatabase();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -61,77 +71,50 @@ public class ListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        for (int i = 0; i < 3; i++) {
-            SimpleTask task = new SimpleTask();
-            AsyncTaskCompat.executeParallel(task);
-        }
+        new DBExtractor().execute();
     }
 
-    public class SimpleTask extends AsyncTask<Void, Integer, Void>{
+    public class DBExtractor extends AsyncTask<Void, Integer, Void>{
 
-        public final String TAG = SimpleTask.class.getSimpleName();
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-//            Toast.makeText(getActivity(), "Hola! El hilo está por empezar", Toast.LENGTH_SHORT).show();
-            Log.i(TAG, "Un hilo esta por comenzar");
-        }
+        Cursor cursor;
 
         @Override
         protected Void doInBackground(Void... params) {
-
-            for (int i = 0; i < 6; i++) {
-                Double time = Math.random() * 10000;
-                try {
-                    //jugar con diferentes valores para variar el mensaje
-                    int new_time = time.intValue();
-                    Thread.sleep(new_time);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                publishProgress(0, time.intValue());
-                publishProgress(1, i);
-            }
+            String[] projection = new String[]{
+                    Contract.Notes.COLUMN_TITLE
+            };
+            String sortOrder = Contract.Notes.COLUMN_TITLE + " desc";
+            cursor = mDb.query(
+                    Contract.Notes.TABLE_NAME,
+                    projection,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
 
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-            //Toast.makeText(getActivity(), "Hola! Soy el mensaje numero " + values[0], Toast.LENGTH_SHORT).show();
-            if(values[0] == 0)
-                Log.i(TAG, "El tiempo de un hilo es " + values[0]);
-            else
-                Log.i(TAG, "Soy el mensaje numero " + values[1]);
-        }
-
-        @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            //Toast.makeText(getActivity(), "Hola, ya se ejecutó el hilo", Toast.LENGTH_SHORT).show();
-            Log.i(TAG, "Un hilo ha finalizado");
+
+            String[] values = new String[cursor.getCount()];
+
+            cursor.moveToFirst();
+            int i = 0;
+            do{
+                values[i] = cursor.getString(cursor.getColumnIndex(Contract.Notes.COLUMN_TITLE));
+                i++;
+            }while (cursor.moveToNext());
+
+            Adapter adapter = new Adapter(values);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+            mRecyclerView.setAdapter(adapter);
         }
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

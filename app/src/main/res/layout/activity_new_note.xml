@@ -33,6 +33,7 @@
         style="@style/Field"/>
 
     <Button
+        android:id="@+id/save_note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
