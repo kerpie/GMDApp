@@ -1,5 +1,7 @@
 package com.example.application;
 
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +12,12 @@ import android.view.ViewGroup;
  */
 public class Adapter extends RecyclerView.Adapter<ItemViewHolder> {
 
-    String[] titles;
+    Note[] notes;
+    ItemViewHolder.HandleEvent mActivity;
 
-    public Adapter(String[] titles){
-        this.titles = titles;
+    public Adapter(Note[] notes, ItemViewHolder.HandleEvent activity){
+        this.notes = notes;
+        this.mActivity = activity;
     }
 
     @Override
@@ -27,20 +31,21 @@ public class Adapter extends RecyclerView.Adapter<ItemViewHolder> {
                         false
                 );
 
-//        parent.addView(view);
-
-        ItemViewHolder vh = new ItemViewHolder(view);
+        ItemViewHolder vh = new ItemViewHolder(view, mActivity);
 
         return vh;
     }
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        holder.bind(titles[position]);
+        holder.bind(notes[position]);
     }
 
     @Override
     public int getItemCount() {
-        return titles.length;
+        if(notes == null || notes.length == 0)
+            return 0;
+        else
+            return notes.length;
     }
 }

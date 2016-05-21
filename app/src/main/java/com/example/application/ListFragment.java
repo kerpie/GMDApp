@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.os.AsyncTaskCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -81,6 +82,7 @@ public class ListFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             String[] projection = new String[]{
+                    Contract.Notes._ID,
                     Contract.Notes.COLUMN_TITLE
             };
             String sortOrder = Contract.Notes.COLUMN_TITLE + " desc";
@@ -91,7 +93,7 @@ public class ListFragment extends Fragment {
                     null,
                     null,
                     null,
-                    null
+                    sortOrder
             );
 
             return null;
@@ -101,19 +103,30 @@ public class ListFragment extends Fragment {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            String[] values = new String[cursor.getCount()];
+            Note[] notes = new Note[cursor.getCount()];
 
-            cursor.moveToFirst();
-            int i = 0;
-            do{
-                values[i] = cursor.getString(cursor.getColumnIndex(Contract.Notes.COLUMN_TITLE));
-                i++;
-            }while (cursor.moveToNext());
+            if(cursor.getCount()>0){
+                cursor.moveToFirst();
+                int i = 0;
+                do{
+                    notes[i] = new Note(
+                            cursor.getLong(cursor.getColumnIndex(Contract.Notes._ID)),
+                            cursor.getString(cursor.getColumnIndex(Contract.Notes.COLUMN_TITLE)),
+                            ""
+                    );
+                    i++;
+                }while (cursor.moveToNext());
 
-            Adapter adapter = new Adapter(values);
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                Adapter adapter = new Adapter(notes, (ItemViewHolder.HandleEvent) getActivity());
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+                linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                mRecyclerView.setLayoutManager(linearLayoutManager);
 
-            mRecyclerView.setAdapter(adapter);
+                mRecyclerView.setAdapter(adapter);
+            }
+            else{
+                Toast.makeText(getActivity(), "No hay datos en la base de datos", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
